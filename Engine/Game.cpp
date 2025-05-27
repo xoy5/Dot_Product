@@ -1,5 +1,5 @@
-/****************************************************************************************** 
- *	Chili DirectX Framework Version 16.07.20											  *	
+/******************************************************************************************
+ *	Chili DirectX Framework Version 16.07.20											  *
  *	Game.cpp																			  *
  *	Copyright 2016 PlanetChili.net <http://www.planetchili.net>							  *
  *																						  *
@@ -20,26 +20,101 @@
  ******************************************************************************************/
 #include "MainWindow.h"
 #include "Game.h"
+#include <assert.h>
+#include <algorithm>
 
-Game::Game( MainWindow& wnd )
+Game::Game(MainWindow& wnd)
 	:
-	wnd( wnd ),
-	gfx( wnd )
+	wnd(wnd),
+	gfx(wnd)
 {
 }
 
 void Game::Go()
 {
-	gfx.BeginFrame();	
-	UpdateModel();
+	gfx.BeginFrame();
+	ProcessInput();
+	const float elapsedTime = ft.Mark();
+	float time = elapsedTime;
+	while (time > 0.0f) {
+		const float dt = std::min(precision, time);
+		UpdateModel(dt);
+		time -= dt;
+	}
+	numberOfFrames++;
+	timeSecond += elapsedTime;
+	if (timeSecond >= 1.0f) {
+		timeSecond -= 1.0f;
+		FPS = numberOfFrames;
+		numberOfFrames = 0;
+	}
+
 	ComposeFrame();
 	gfx.EndFrame();
 }
 
-void Game::UpdateModel()
+void Game::ProcessInput()
 {
+////////////// KEYBOARD ///////////////
+	// Keys
+	while (!wnd.kbd.KeyIsEmpty())
+	{
+		const Keyboard::Event keyPressed = wnd.kbd.ReadKey();
+		if (keyPressed.IsValid() && keyPressed.IsPress())
+		{
+			
+		}
+	}
+	// Characters
+	while (!wnd.kbd.CharIsEmpty())
+	{
+		const char character = wnd.kbd.ReadChar();
+	}
+///////////////////////////////////////
+
+//////////////// MOUSE ////////////////
+	while (!wnd.mouse.IsEmpty())
+	{
+		const auto e = wnd.mouse.Read();
+		// buttons
+		// editor
+	}
+///////////////////////////////////////
+}
+
+void Game::UpdateModel(float dt)
+{
+	const RectI boxRect = fontBase.GetRectForText(message, Vei2(posBox));
+	posBox += dir * dt * 200.0f;
+	if (boxRect.left < walls.left)
+	{
+		dir.x = -dir.x;
+		posBox.x = walls.left;
+	}
+	else if (boxRect.right > walls.right)
+	{
+		dir.x = -dir.x;
+		posBox.x = walls.right - boxRect.GetWidth();
+	}
+	if (boxRect.top < walls.top)
+	{
+		dir.y = -dir.y;
+		posBox.y = walls.top;
+	}
+	else if (boxRect.bottom > walls.bottom)
+	{
+		dir.y = -dir.y;
+		posBox.y = walls.bottom - boxRect.GetHeight();
+	}
 }
 
 void Game::ComposeFrame()
 {
+	const RectI boxRect = fontBase.GetRectForText(message, Vei2(posBox));
+	gfx.DrawRect(boxRect, Colors::Blue);
+	fontBase.DrawText(message, Vei2(posBox), Colors::White, gfx);
+	// Draw FPS
+	const std::string fpsText = "FPS: " + std::to_string(FPS);
+	fontXs.DrawText(fpsText, Vei2{ 10, 10 }, Colors::White, gfx);
+
 }

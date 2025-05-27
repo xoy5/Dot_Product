@@ -22,8 +22,12 @@
 #include "ChiliWin.h"
 #include <d3d11.h>
 #include <wrl.h>
+#include <vector>
+#include <cassert>
 #include "ChiliException.h"
 #include "Colors.h"
+#include "Surface.h"
+#include "Rect.h"
 
 class Graphics
 {
@@ -52,11 +56,109 @@ public:
 	Graphics& operator=( const Graphics& ) = delete;
 	void EndFrame();
 	void BeginFrame();
+	Color GetPixel( int x,int y ) const;
 	void PutPixel( int x,int y,int r,int g,int b )
 	{
 		PutPixel( x,y,{ unsigned char( r ),unsigned char( g ),unsigned char( b ) } );
 	}
-	void PutPixel( int x,int y,Color c );
+	void PutPixel( int x,int y, Color c );
+	void PutPixelIfInRect(int x, int y, Color c, RectI rect = RectI({ 0,0 }, Graphics::ScreenWidth, Graphics::ScreenHeight));
+
+	void DrawLine(const Vei2& p, const Vei2& q, int thickness = 1, const Color& c = Colors::White);
+	void DrawLine(const Vec2& p, const Vec2& q, int thickness = 1, const Color& c = Colors::White)
+	{
+		DrawLine(Vei2(p), Vei2(q), thickness, c);
+	}
+
+	void DrawCircle(const Vei2& pos, float radius, const Color& c, float angleStart = 0.0f, float angleEnd = 360.0f);
+	void DrawCircle(const Vec2& pos, float radius, const Color& c, float angleStart = 0.0f, float angleEnd = 360.0f)
+	{
+		DrawCircle(Vei2{ pos }, radius, c, angleStart, angleEnd);
+	}
+
+	void DrawCircleOutline(const Vei2& center, float radius, const Color& c, int thickness = 2, int segments = 100);
+	void DrawCircleOutline(const Vec2& center, float radius, const Color& c, int thickness = 2, int segments = 100)
+	{
+		DrawCircleOutline(Vei2{ center }, radius, thickness, segments);
+	}
+
+	void DrawRect(int x0, int y0, int x1, int y1, Color c);
+	void DrawRect(const RectI& rect, Color c)
+	{
+		DrawRect(rect.left, rect.top, rect.right, rect.bottom, c);
+	}
+	void DrawRect(const RectF& rect, Color c)
+	{
+		DrawRect((int)rect.left, (int)rect.top, (int)rect.right, (int)rect.bottom, c);
+	}
+
+	void DrawDisabled(const RectI& rect);
+
+	template<typename E>
+	void DrawSprite(float x, float y, const Surface& s, E effect)
+	{
+		DrawSprite((int)x, (int)y, s, effect);
+	}
+	template<typename E>
+	void DrawSprite(float x, float y, const RectI& srcRect, const Surface& s, E effect)
+	{
+		DrawSprite((int)x, (int)y, srcRect, s, effect);
+	}
+	template<typename E>
+	void DrawSprite(float x, float y, RectI srcRect, const RectI& clip, const Surface& s, E effect)
+	{
+		DrawSprite((int)x, (int)y, srcRect, GetScreenRect(), s, effect);
+	}
+
+	template<typename E>
+	void DrawSprite( int x,int y,const Surface& s,E effect )
+	{
+		DrawSprite( x,y,s.GetRect(),s,effect );
+	}
+	template<typename E>
+	void DrawSprite( int x,int y,const RectI& srcRect,const Surface& s,E effect )
+	{
+		DrawSprite( x,y,srcRect,GetScreenRect(),s,effect );
+	}
+	template<typename E>
+	void DrawSprite( int x,int y,RectI srcRect,const RectI& clip,const Surface& s,E effect )
+	{
+		assert( srcRect.left >= 0 );
+		assert( srcRect.right <= s.GetWidth() );
+		assert( srcRect.top >= 0 );
+		assert( srcRect.bottom <= s.GetHeight() );
+		if( x < clip.left )
+		{
+			srcRect.left += clip.left - x;
+			x = clip.left;
+		}
+		if( y < clip.top )
+		{
+			srcRect.top += clip.top - y;
+			y = clip.top;
+		}
+		if( x + srcRect.GetWidth() > clip.right )
+		{
+			srcRect.right -= x + srcRect.GetWidth() - clip.right;
+		}
+		if( y + srcRect.GetHeight() > clip.bottom )
+		{
+			srcRect.bottom -= y + srcRect.GetHeight() - clip.bottom;
+		}
+		for( int sy = srcRect.top; sy < srcRect.bottom; sy++ )
+		{
+			for( int sx = srcRect.left; sx < srcRect.right; sx++ )
+			{
+				effect(
+					s.GetPixel( sx,sy ),
+					x + sx - srcRect.left,
+					y + sy - srcRect.top,
+					*this
+				);
+			}
+		}
+	}
+
 	~Graphics();
 private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain>				pSwapChain;
@@ -75,4 +177,6 @@ private:
 public:
 	static constexpr int ScreenWidth = 800;
 	static constexpr int ScreenHeight = 600;
+	static RectI GetScreenRect();
+	static Vei2 GetScreenCenter();
 };

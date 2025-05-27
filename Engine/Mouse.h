@@ -20,6 +20,7 @@
  ******************************************************************************************/
 #pragma once
 #include <queue>
+#include "Vec2.h"
 
 class Mouse
 {
@@ -45,6 +46,7 @@ public:
 		bool rightIsPressed;
 		int x;
 		int y;
+		bool leftIsClickedAlready;
 	public:
 		Event()
 			:
@@ -52,15 +54,17 @@ public:
 			leftIsPressed( false ),
 			rightIsPressed( false ),
 			x( 0 ),
-			y( 0 )
+			y( 0 ),
+			leftIsClickedAlready(false)
 		{}
-		Event( Type type,const Mouse& parent )
+		Event(Type type, const Mouse& parent)
 			:
-			type( type ),
-			leftIsPressed( parent.leftIsPressed ),
-			rightIsPressed( parent.rightIsPressed ),
-			x( parent.x ),
-			y( parent.y )
+			type(type),
+			leftIsPressed(parent.leftIsPressed),
+			rightIsPressed(parent.rightIsPressed),
+			x(parent.x),
+			y(parent.y),
+			leftIsClickedAlready(parent.leftIsClickedAlready)
 		{}
 		bool IsValid() const
 		{
@@ -70,7 +74,7 @@ public:
 		{
 			return type;
 		}
-		std::pair<int,int> GetPos() const
+		Vei2 GetPos() const
 		{
 			return{ x,y };
 		}
@@ -86,6 +90,10 @@ public:
 		{
 			return leftIsPressed;
 		}
+		bool leftIsPressedAndIsntClickedAlready() const
+		{
+			return leftIsPressed && !leftIsClickedAlready;
+		}
 		bool RightIsPressed() const
 		{
 			return rightIsPressed;
@@ -95,7 +103,7 @@ public:
 	Mouse() = default;
 	Mouse( const Mouse& ) = delete;
 	Mouse& operator=( const Mouse& ) = delete;
-	std::pair<int,int> GetPos() const;
+	Vei2 GetPos() const;
 	int GetPosX() const;
 	int GetPosY() const;
 	bool LeftIsPressed() const;
@@ -120,9 +128,10 @@ private:
 	void TrimBuffer();
 private:
 	static constexpr unsigned int bufferSize = 4u;
-	int x;
-	int y;
+	int x = 0;
+	int y = 0;
 	bool leftIsPressed = false;
+	bool leftIsClickedAlready = false;
 	bool rightIsPressed = false;
 	bool isInWindow = false;
 	std::queue<Event> buffer;

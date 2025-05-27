@@ -21,7 +21,7 @@
 #include "Mouse.h"
 
 
-std::pair<int,int> Mouse::GetPos() const
+Vei2 Mouse::GetPos() const
 {
 	return { x,y };
 }
@@ -95,11 +95,16 @@ void Mouse::OnLeftPressed( int x,int y )
 
 	buffer.push( Mouse::Event( Mouse::Event::Type::LPress,*this ) );
 	TrimBuffer();
+
+	if (leftIsClickedAlready == false) {
+		leftIsClickedAlready = true;
+	}
 }
 
 void Mouse::OnLeftReleased( int x,int y )
 {
 	leftIsPressed = false;
+	leftIsClickedAlready = false;
 
 	buffer.push( Mouse::Event( Mouse::Event::Type::LRelease,*this ) );
 	TrimBuffer();

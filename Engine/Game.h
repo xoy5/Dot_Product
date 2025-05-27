@@ -20,9 +20,17 @@
  ******************************************************************************************/
 #pragma once
 
+#include <vector>
+#include <random>
+
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "Graphics.h"
+#include "FrameTimer.h"
+#include "Font.h"
+#include "Button.h"
+#include "TextBox.h"
+#include "MyMessageBox.h"
 
 class Game
 {
@@ -31,16 +39,47 @@ public:
 	Game( const Game& ) = delete;
 	Game& operator=( const Game& ) = delete;
 	void Go();
+
 private:
+	void ProcessInput();
+	void UpdateModel(float dt);
 	void ComposeFrame();
-	void UpdateModel();
 	/********************************/
 	/*  User Functions              */
+
 	/********************************/
+
 private:
 	MainWindow& wnd;
 	Graphics gfx;
+
+	////////// FONTS /////////
+	const Font fontXs = Font("Files/Fonts/font8x14.bmp");
+	const Font fontSm = Font("Files/Fonts/font12x21.bmp");
+	const Font fontBase = Font("Files/Fonts/font16x28.bmp");
+	const Font fontLg = Font("Files/Fonts/font18x32.bmp");
+	const Font fontXl = Font("Files/Fonts/font20x35.bmp");
+	const Font font2Xl = Font("Files/Fonts/font24x42.bmp");
+	const Font font3Xl = Font("Files/Fonts/font32x56.bmp");
+	///////////////////////////
+
+	std::mt19937 rng = std::mt19937(std::random_device{}());
+	const float precision = 0.0025f;
+	FrameTimer ft;
+	MyMessageBox myMessageBox = MyMessageBox(&fontLg);
+
+	/////////// FPS ///////////
+	int FPS = 0;
+	float timeFrame = 0.0f;
+	float timeSecond = 0.0f;
+	int numberOfFrames = 0;
+	///////////////////////////
+
 	/********************************/
-	/*  User Variables              */
+	/*  User Variables  */
+	const std::string message = " Chili \nDirectX";
+	const RectI walls = Graphics::GetScreenRect();
+	Vec2 posBox = Vec2(Graphics::GetScreenCenter());
+	Vec2 dir = Vec2{ 1.0, 1.0f };
 	/********************************/
 };
