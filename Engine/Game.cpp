@@ -30,9 +30,9 @@ Game::Game(MainWindow& wnd)
 	gfx(wnd),
 	ct(gfx),
 	cam(ct),
-	camCtrl(wnd.mouse, cam)
+	camCtrl(wnd.mouse, cam),
+	plank({100.0f, 200.0f}, -200.0f, -100.0f, 290.0f)
 {
-
 }
 
 void Game::Go()
@@ -100,4 +100,5 @@ void Game::ComposeFrame()
 	fontXs.DrawText(fpsText, Vei2{ 10, 10 }, Colors::White, gfx);
 
 	const auto vp = cam.GetViewportRect();
+	cam.Draw(plank.GetDrawable());
 }

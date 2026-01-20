@@ -35,7 +35,7 @@
 #include "Camera.h"
 #include "MouseCameraController.h"
 
-#include "Entity.h"
+#include "Plank.h"
 
 class Game
 {
@@ -91,5 +91,7 @@ private:
 
 	static constexpr float worldWidth = 10000.0f;
 	static constexpr float worldHeight = 6000.0f;
+
+	Plank plank;
 	/********************************/
 };

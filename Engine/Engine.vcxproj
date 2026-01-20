@@ -161,6 +161,7 @@
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="MouseCameraController.h" />
     <ClInclude Include="MyMessageBox.h" />
+    <ClInclude Include="Plank.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Sound.h" />

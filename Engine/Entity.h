@@ -47,6 +47,10 @@ public:
 	{
 		c = c_in;
 	}
+	void SetModel(std::vector<Vec2> model_in)
+	{
+		model = std::move(model_in);
+	}
 
 private:
 	Color c;
