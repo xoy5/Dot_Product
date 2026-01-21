@@ -16,12 +16,12 @@ public:
 		bottom(bottom_in)
 	{
 	}
-	Rect_(const Vec2_<T>& topLeft, const Vec2_<T>& bottomRight)
+	constexpr Rect_(const Vec2_<T>& topLeft, const Vec2_<T>& bottomRight)
 		:
 		Rect_(topLeft.x, bottomRight.x, topLeft.y, bottomRight.y)
 	{
 	}
-	Rect_(const Vec2_<T>& topLeft, T width, T height)
+	constexpr Rect_(const Vec2_<T>& topLeft, T width, T height)
 		:
 		Rect_(topLeft, topLeft + Vec2_<T>(width, height))
 	{
@@ -50,7 +50,7 @@ public:
 	bool IsContainedBy(const Rect_& other) const
 	{
 		return left >= other.left && right <= other.right &&
-			top >= other.top && bottom <= other.bottom;
+			top <= other.top && bottom >= other.bottom;
 	}
 	bool IsContains(const Vec2_<T>& point) const
 	{

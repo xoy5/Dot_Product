@@ -31,7 +31,8 @@ Game::Game(MainWindow& wnd)
 	ct(gfx),
 	cam(ct),
 	camCtrl(wnd.mouse, cam),
-	plank({100.0f, 200.0f}, -200.0f, -100.0f, 290.0f)
+	plank({ 100.0f, 200.0f }, -200.0f, -100.0f, 290.0f),
+	spawnPoint(rng, balls, 8.0f, { 0.0f, -10.0f }, -100.0f, 25.0f, 150.0f, 0.1f)
 {
 }
 
@@ -60,14 +61,21 @@ void Game::Go()
 
 void Game::ProcessInput()
 {
-////////////// KEYBOARD ///////////////
-	// Keys
+	if (wnd.kbd.KeyIsPressed(VK_DOWN))
+	{
+		plank.MoveFreeY(-2.0f);
+	}
+	if (wnd.kbd.KeyIsPressed(VK_UP))
+	{
+		plank.MoveFreeY(2.0f);
+	}
+	////////////// KEYBOARD ///////////////
+		// Keys
 	while (!wnd.kbd.KeyIsEmpty())
 	{
 		const Keyboard::Event keyPressed = wnd.kbd.ReadKey();
 		if (keyPressed.IsValid() && keyPressed.IsPress())
 		{
-			
 		}
 	}
 	// Characters
@@ -75,22 +83,43 @@ void Game::ProcessInput()
 	{
 		const char character = wnd.kbd.ReadChar();
 	}
-///////////////////////////////////////
+	///////////////////////////////////////
 
-//////////////// MOUSE ////////////////
-	//while (!wnd.mouse.IsEmpty())
-	//{
-	//	const auto e = wnd.mouse.Read();
-	//	// buttons
-	//	// editor
-	//}
+	//////////////// MOUSE ////////////////
+		//while (!wnd.mouse.IsEmpty())
+		//{
+		//	const auto e = wnd.mouse.Read();
+		//	// buttons
+		//	// editor
+		//}
 	camCtrl.Update();
-///////////////////////////////////////
+	///////////////////////////////////////
 }
 
 void Game::UpdateModel(float dt)
 {
+	for (auto& b : balls)
+	{
+		const auto plankPts = plank.GetPoints();
 
+		if (DistancePointLine(plankPts.first, plankPts.second, b.GetPos()) < b.GetRadius())
+		{
+			float x = DistancePointLine(plankPts.first, plankPts.second, b.GetPos());
+			const Vec2 w = plank.GetPlankSurfaceVector().GetNormalized();
+			const Vec2 v = b.GetVel();
+			b.SetVel(w * (v * w) * 2.0f - v);
+		}
+
+		b.Update(dt);
+	}
+	spawnPoint.Update(dt);
+
+	auto newEnd = std::remove_if(balls.begin(), balls.end(), [this](const Ball& b)
+	{
+		return !b.GetBoundingRect().IsContainedBy(worldWalls); // Changed definition of IsContainedBy (Do u even remember that I wanted to use IsOverlaping?)
+	});
+
+	balls.erase(newEnd, balls.end());
 }
 
 void Game::ComposeFrame()
@@ -99,6 +128,15 @@ void Game::ComposeFrame()
 	const std::string fpsText = "FPS: " + std::to_string(FPS);
 	fontXs.DrawText(fpsText, Vei2{ 10, 10 }, Colors::White, gfx);
 
+	// Viewport
 	const auto vp = cam.GetViewportRect();
+
 	cam.Draw(plank.GetDrawable());
+	for (const auto& b : balls)
+	{
+		if (b.GetBoundingRect().IsOverlappingWith(vp))
+		{
+			cam.Draw(b.GetDrawable());
+		}
+	}
 }

@@ -1,5 +1,5 @@
-/****************************************************************************************** 
- *	Chili DirectX Framework Version 16.07.20											  *	
+/******************************************************************************************
+ *	Chili DirectX Framework Version 16.07.20											  *
  *	Game.h																				  *
  *	Copyright 2016 PlanetChili.net <http://www.planetchili.net>							  *
  *																						  *
@@ -36,13 +36,16 @@
 #include "MouseCameraController.h"
 
 #include "Plank.h"
+#include "Ball.h"
+#include "SpawnPoint.h"
+#include "ChiliMath.h"
 
 class Game
 {
 public:
-	Game( class MainWindow& wnd );
-	Game( const Game& ) = delete;
-	Game& operator=( const Game& ) = delete;
+	Game(class MainWindow& wnd);
+	Game(const Game&) = delete;
+	Game& operator=(const Game&) = delete;
 	void Go();
 
 private:
@@ -89,9 +92,12 @@ private:
 	const std::string message = "  Chili  \n DirectX \nWojtkowski";
 	const RectI walls = Graphics::GetScreenRect();
 
-	static constexpr float worldWidth = 10000.0f;
-	static constexpr float worldHeight = 6000.0f;
+	static constexpr float worldWidth = 800.0f;
+	static constexpr float worldHeight = 600.0f;
+	static constexpr RectF worldWalls = RectF{ -worldWidth / 2.0f, worldWidth / 2.0f, worldHeight / 2, -worldHeight / 2 };
 
 	Plank plank;
+	std::vector<Ball> balls;
+	SpawnPoint spawnPoint;
 	/********************************/
 };

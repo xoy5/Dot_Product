@@ -10,7 +10,7 @@
 class Entity
 {
 public:
-	Entity( std::vector<Vec2> model,const Vec2& pos = { 0.0f,0.0f },Color c = Colors::Yellow )
+	Entity( std::vector<Vec2> model,const Vec2& pos = { 0.0f,0.0f }, Color c = Colors::Yellow )
 		:
 		c( c ),
 		pos( pos ),
